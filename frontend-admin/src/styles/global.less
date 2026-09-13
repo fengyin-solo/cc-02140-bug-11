@@ -1,0 +1,352 @@
+// ========================================
+// 全局样式变量 - 设计规范
+// ========================================
+
+// 主题色系（避免紫色作为主色）
+@primary-color: #1890ff;
+@success-color: #52c41a;
+@warning-color: #faad14;
+@error-color: #ff4d4f;
+@info-color: #1890ff;
+
+// 中性色
+@text-color-primary: #1a1a1a;
+@text-color-secondary: #666666;
+@text-color-tertiary: #999999;
+@text-color-disabled: #bfbfbf;
+
+// 背景色（避免高饱和度紫色）
+@bg-color-base: #f5f7fa;
+@bg-color-light: #fafbfc;
+@bg-color-white: #ffffff;
+@bg-color-dark: #001529;
+
+// 边框色
+@border-color-base: #e8e8e8;
+@border-color-light: #f0f0f0;
+
+// ========================================
+// 字体层级规范
+// ========================================
+@font-family-base: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+
+// 字号层级
+@font-size-h1: 28px;
+@font-size-h2: 24px;
+@font-size-h3: 20px;
+@font-size-h4: 16px;
+@font-size-body: 14px;
+@font-size-small: 12px;
+
+// 行高
+@line-height-base: 1.5;
+@line-height-heading: 1.3;
+
+// 字重
+@font-weight-normal: 400;
+@font-weight-medium: 500;
+@font-weight-semibold: 600;
+@font-weight-bold: 700;
+
+// ========================================
+// 间距规范（8px 基准）
+// ========================================
+@spacing-xs: 8px;
+@spacing-sm: 12px;
+@spacing-md: 16px;
+@spacing-lg: 24px;
+@spacing-xl: 32px;
+@spacing-xxl: 48px;
+
+// ========================================
+// 圆角规范
+// ========================================
+@border-radius-sm: 4px;
+@border-radius-base: 8px;
+@border-radius-lg: 12px;
+@border-radius-xl: 16px;
+
+// ========================================
+// 阴影规范
+// ========================================
+@box-shadow-sm: 0 1px 4px rgba(0, 0, 0, 0.06);
+@box-shadow-base: 0 2px 8px rgba(0, 0, 0, 0.08);
+@box-shadow-md: 0 4px 12px rgba(0, 0, 0, 0.1);
+@box-shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.12);
+@box-shadow-xl: 0 12px 36px rgba(0, 0, 0, 0.15);
+
+// ========================================
+// 过渡动画
+// ========================================
+@transition-fast: 0.15s ease;
+@transition-base: 0.3s ease;
+@transition-slow: 0.5s ease;
+
+// ========================================
+// 全局重置
+// ========================================
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+  font-family: @font-family-base;
+  font-size: @font-size-body;
+  line-height: @line-height-base;
+  color: @text-color-primary;
+  background-color: @bg-color-base;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#app {
+  height: 100%;
+}
+
+// ========================================
+// 字体层级样式
+// ========================================
+h1, .h1 {
+  font-size: @font-size-h1;
+  font-weight: @font-weight-bold;
+  line-height: @line-height-heading;
+  color: @text-color-primary;
+}
+
+h2, .h2 {
+  font-size: @font-size-h2;
+  font-weight: @font-weight-semibold;
+  line-height: @line-height-heading;
+  color: @text-color-primary;
+}
+
+h3, .h3 {
+  font-size: @font-size-h3;
+  font-weight: @font-weight-semibold;
+  line-height: @line-height-heading;
+  color: @text-color-primary;
+}
+
+h4, .h4 {
+  font-size: @font-size-h4;
+  font-weight: @font-weight-medium;
+  line-height: @line-height-heading;
+  color: @text-color-primary;
+}
+
+.text-body {
+  font-size: @font-size-body;
+  color: @text-color-primary;
+}
+
+.text-secondary {
+  font-size: @font-size-body;
+  color: @text-color-secondary;
+}
+
+.text-small {
+  font-size: @font-size-small;
+  color: @text-color-tertiary;
+}
+
+// ========================================
+// 通用组件样式
+// ========================================
+
+// 卡片容器
+.card-container {
+  background: @bg-color-white;
+  border-radius: @border-radius-lg;
+  box-shadow: @box-shadow-base;
+  padding: @spacing-lg;
+  margin-bottom: @spacing-md;
+  border: 1px solid @border-color-light;
+  transition: box-shadow @transition-base;
+
+  &:hover {
+    box-shadow: @box-shadow-md;
+  }
+}
+
+// 页面标题
+.page-title {
+  font-size: @font-size-h3;
+  font-weight: @font-weight-semibold;
+  color: @text-color-primary;
+  margin-bottom: @spacing-lg;
+}
+
+// 表格容器
+.table-container {
+  background: @bg-color-white;
+  border-radius: @border-radius-lg;
+  box-shadow: @box-shadow-sm;
+  padding: @spacing-md;
+  border: 1px solid @border-color-light;
+}
+
+// 搜索区域
+.search-area {
+  background: @bg-color-white;
+  border-radius: @border-radius-lg;
+  box-shadow: @box-shadow-sm;
+  padding: @spacing-md @spacing-lg;
+  margin-bottom: @spacing-md;
+  border: 1px solid @border-color-light;
+}
+
+// 统计卡片
+.stat-card {
+  background: linear-gradient(135deg, @primary-color 0%, #40a9ff 100%);
+  border-radius: @border-radius-lg;
+  padding: @spacing-lg;
+  color: #fff;
+
+  &.success {
+    background: linear-gradient(135deg, @success-color 0%, #73d13d 100%);
+  }
+
+  &.warning {
+    background: linear-gradient(135deg, @warning-color 0%, #ffc53d 100%);
+  }
+
+  &.error {
+    background: linear-gradient(135deg, @error-color 0%, #ff7875 100%);
+  }
+}
+
+// ========================================
+// 交互反馈增强
+// ========================================
+
+// 按钮 hover 效果
+.ant-btn {
+  transition: all @transition-base;
+
+  &:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: @box-shadow-md;
+  }
+
+  &:active:not(:disabled) {
+    transform: translateY(0);
+    box-shadow: @box-shadow-sm;
+  }
+
+  &.ant-btn-primary:hover:not(:disabled) {
+    box-shadow: 0 4px 12px rgba(24, 144, 255, 0.4);
+  }
+
+  &.ant-btn-dangerous:hover:not(:disabled) {
+    box-shadow: 0 4px 12px rgba(255, 77, 79, 0.4);
+  }
+
+  // 表格内链接按钮不需要 hover 效果
+  &.ant-btn-link {
+    &:hover:not(:disabled) {
+      transform: none;
+      box-shadow: none;
+    }
+  }
+}
+
+// 链接样式
+a {
+  color: @primary-color;
+  text-decoration: none;
+  transition: color @transition-fast;
+
+  &:hover {
+    color: #40a9ff;
+  }
+
+  &:active {
+    color: #096dd9;
+  }
+}
+
+// 表格行 hover 效果
+.ant-table-tbody > tr {
+  transition: background @transition-fast;
+
+  &:hover > td {
+    background: #e6f7ff !important;
+  }
+}
+
+// 输入框聚焦效果
+.ant-input:focus,
+.ant-input-focused,
+.ant-select-focused .ant-select-selector {
+  box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
+}
+
+// 卡片 hover 效果
+.clickable-card {
+  cursor: pointer;
+  transition: all @transition-base;
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: @box-shadow-lg;
+  }
+
+  &:active {
+    transform: translateY(-2px);
+  }
+}
+
+// ========================================
+// 滚动条美化
+// ========================================
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: @bg-color-light;
+  border-radius: @border-radius-sm;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: @border-radius-sm;
+  transition: background @transition-fast;
+
+  &:hover {
+    background: #a8a8a8;
+  }
+}
+
+// ========================================
+// 图片占位符样式
+// ========================================
+.img-placeholder {
+  background: linear-gradient(135deg, #e8e8e8 0%, #f5f5f5 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: @text-color-tertiary;
+  font-size: @font-size-small;
+}
+
+// ========================================
+// 区域分隔样式
+// ========================================
+.section-divider {
+  height: 1px;
+  background: @border-color-base;
+  margin: @spacing-lg 0;
+}
+
+.area-header {
+  background: @bg-color-light;
+  padding: @spacing-md @spacing-lg;
+  border-bottom: 1px solid @border-color-base;
+  margin: -@spacing-lg -@spacing-lg @spacing-lg;
+  border-radius: @border-radius-lg @border-radius-lg 0 0;
+}
