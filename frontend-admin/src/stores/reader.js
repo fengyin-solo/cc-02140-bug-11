@@ -55,6 +55,15 @@ export const useReaderStore = defineStore('reader', () => {
     return false
   }
 
+  // 借还书统一的读者借阅数回写入口，按最新值增量调整且不小于 0
+  function adjustBorrowCount(id, delta) {
+    const index = readers.value.findIndex(reader => reader.id === id)
+    if (index === -1) return false
+    const reader = readers.value[index]
+    reader.borrowCount = Math.max(0, (reader.borrowCount ?? 0) + delta)
+    return true
+  }
+
   function deleteReader(id) {
     const index = readers.value.findIndex(reader => reader.id === id)
     if (index !== -1) {
@@ -83,6 +92,7 @@ export const useReaderStore = defineStore('reader', () => {
     getReaderByCardNo,
     addReader,
     updateReader,
+    adjustBorrowCount,
     deleteReader,
     searchReaders
   }

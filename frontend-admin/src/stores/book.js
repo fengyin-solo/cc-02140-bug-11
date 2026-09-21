@@ -95,6 +95,16 @@ export const useBookStore = defineStore('book', () => {
     return false
   }
 
+  // 借还书统一的库存回写入口，按最新值增量调整并做边界保护
+  function adjustAvailable(id, delta) {
+    const index = books.value.findIndex(book => book.id === id)
+    if (index === -1) return false
+    const book = books.value[index]
+    const next = (book.available ?? 0) + delta
+    book.available = Math.max(0, Math.min(next, book.total ?? next))
+    return true
+  }
+
   function deleteBook(id) {
     const index = books.value.findIndex(book => book.id === id)
     if (index !== -1) {
@@ -127,6 +137,7 @@ export const useBookStore = defineStore('book', () => {
     getBookById,
     addBook,
     updateBook,
+    adjustAvailable,
     deleteBook,
     searchBooks,
     filterByCategory

@@ -91,8 +91,8 @@
                   </div>
                   <div class="borrow-meta">
                     <span class="borrow-date">{{ record.borrowDate }}</span>
-                    <a-tag :color="getStatusColor(record.status)" size="small" class="status-tag">
-                      {{ getStatusText(record.status) }}
+                    <a-tag :color="getStatusColor(borrowStore.getStatus(record))" size="small" class="status-tag">
+                      {{ getStatusText(borrowStore.getStatus(record)) }}
                     </a-tag>
                   </div>
                 </div>

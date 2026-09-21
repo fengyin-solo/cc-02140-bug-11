@@ -207,31 +207,33 @@
             </div>
           </template>
           <template v-else-if="column.key === 'status'">
-            <a-tag :color="getStatusColor(record.status)" :class="['status-tag', record.status]">
-              {{ getStatusText(record.status) }}
+            <a-tag :color="getStatusColor(getStatus(record))" :class="['status-tag', getStatus(record)]">
+              {{ getStatusText(getStatus(record)) }}
             </a-tag>
           </template>
           <template v-else-if="column.key === 'action'">
             <a-space>
               <a-button
-                v-if="record.status === 'borrowed' || record.status === 'overdue'"
+                v-if="getStatus(record) === 'borrowed' || getStatus(record) === 'overdue'"
                 type="link"
                 size="small"
                 class="table-action-btn return-btn"
+                :loading="borrowStore.isPending('record:' + record.id)"
                 @click="handleReturn(record)"
               >
                 <CheckOutlined /> 归还
               </a-button>
               <a-button
-                v-if="record.status === 'borrowed' && record.renewCount < 2"
+                v-if="getStatus(record) === 'borrowed' && record.renewCount < 2"
                 type="link"
                 size="small"
                 class="table-action-btn renew-btn"
+                :loading="borrowStore.isPending('record:' + record.id)"
                 @click="handleRenew(record)"
               >
                 <ReloadOutlined /> 续借
               </a-button>
-              <span v-if="record.status === 'returned'" class="completed-text">
+              <span v-if="getStatus(record) === 'returned'" class="completed-text">
                 <CheckCircleOutlined /> 已完成
               </span>
             </a-space>
@@ -371,7 +373,7 @@ const filteredRecords = computed(() => {
   }
 
   if (selectedStatus.value) {
-    result = result.filter(record => record.status === selectedStatus.value)
+    result = result.filter(record => borrowStore.getStatus(record) === selectedStatus.value)
   }
 
   if (dateRange.value && dateRange.value.length === 2) {
@@ -386,15 +388,15 @@ const filteredRecords = computed(() => {
 })
 
 const filteredTotalBorrowed = computed(() => {
-  return filteredRecords.value.filter(r => r.status === 'borrowed').length
+  return filteredRecords.value.filter(r => borrowStore.getStatus(r) === 'borrowed').length
 })
 
 const filteredTotalOverdue = computed(() => {
-  return filteredRecords.value.filter(r => r.status === 'overdue').length
+  return filteredRecords.value.filter(r => borrowStore.getStatus(r) === 'overdue').length
 })
 
 const returnedCount = computed(() => {
-  return filteredRecords.value.filter(r => r.status === 'returned').length
+  return filteredRecords.value.filter(r => borrowStore.getStatus(r) === 'returned').length
 })
 
 const todayBorrowCount = computed(() => {
@@ -432,6 +434,9 @@ function getStatusColor(status) {
   }
   return colors[status] || 'default'
 }
+
+// 列表回显统一使用 store 派生的最终状态
+const getStatus = record => borrowStore.getStatus(record)
 
 function getStatusText(status) {
   const texts = {
@@ -513,7 +518,6 @@ function showBorrowModal() {
 async function handleBorrowSubmit() {
   try {
     await borrowFormRef.value.validate()
-    submitLoading.value = true
 
     const reader = readerStore.getReaderById(borrowForm.readerId)
     const book = bookStore.getBookById(borrowForm.bookId)
@@ -523,22 +527,16 @@ async function handleBorrowSubmit() {
       return
     }
 
-    await new Promise(resolve => setTimeout(resolve, 500))
+    submitLoading.value = true
+    // 记录、可借数量、读者借阅数在 store 内同一次操作原子提交，避免部分失败
+    const result = await borrowStore.borrowBook({ reader, book })
 
-    borrowStore.addRecord({
-      readerId: reader.id,
-      readerName: reader.name,
-      cardNo: reader.cardNo,
-      bookId: book.id,
-      bookTitle: book.title,
-      isbn: book.isbn
-    })
-
-    bookStore.updateBook(book.id, { available: book.available - 1 })
-    readerStore.updateReader(reader.id, { borrowCount: reader.borrowCount + 1 })
-
-    message.success('借阅成功')
-    borrowModalVisible.value = false
+    if (result.success) {
+      message.success(result.message)
+      borrowModalVisible.value = false
+    } else {
+      message.error(result.message)
+    }
   } catch (error) {
     console.error('表单验证失败:', error)
   } finally {
@@ -546,28 +544,22 @@ async function handleBorrowSubmit() {
   }
 }
 
-function handleReturn(record) {
-  borrowStore.returnBook(record.id)
-
-  const book = bookStore.getBookById(record.bookId)
-  const reader = readerStore.getReaderById(record.readerId)
-
-  if (book) {
-    bookStore.updateBook(book.id, { available: book.available + 1 })
+async function handleReturn(record) {
+  const result = await borrowStore.returnBook(record.id)
+  // 重复提交 / 已处理只给一次明确反馈，不重复回写库存
+  if (result.success) {
+    message.success(result.message)
+  } else {
+    message.warning(result.message)
   }
-  if (reader) {
-    readerStore.updateReader(reader.id, { borrowCount: Math.max(0, reader.borrowCount - 1) })
-  }
-
-  message.success('归还成功')
 }
 
-function handleRenew(record) {
-  const success = borrowStore.renewBook(record.id)
-  if (success) {
-    message.success('续借成功，借阅期限延长15天')
+async function handleRenew(record) {
+  const result = await borrowStore.renewBook(record.id)
+  if (result.success) {
+    message.success(result.message)
   } else {
-    message.error('续借失败，已达到最大续借次数')
+    message.error(result.message)
   }
 }
 </script>
