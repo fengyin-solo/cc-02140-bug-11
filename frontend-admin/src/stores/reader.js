@@ -20,9 +20,10 @@ export const useReaderStore = defineStore('reader', () => {
   const readers = ref(loadReaders())
   const loading = ref(false)
 
+  // 同步落盘，读者已借数量变更不丢失
   watch(readers, (newReaders) => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(newReaders))
-  }, { deep: true })
+  }, { deep: true, flush: 'sync' })
 
   const totalReaders = computed(() => readers.value.length)
   const activeReaders = computed(() =>

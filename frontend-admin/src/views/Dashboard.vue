@@ -203,7 +203,8 @@ const borrowStore = useBorrowStore()
 const categoryStore = useCategoryStore()
 
 const recentBorrows = computed(() => {
-  return [...borrowStore.records]
+  // 使用派生最终状态，概览与借阅列表、统计口径一致
+  return [...borrowStore.recordsWithStatus]
     .sort((a, b) => new Date(b.borrowDate) - new Date(a.borrowDate))
     .slice(0, 5)
 })

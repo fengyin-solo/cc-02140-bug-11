@@ -64,10 +64,10 @@ export const useBookStore = defineStore('book', () => {
   const books = ref(loadBooks())
   const loading = ref(false)
 
-  // 监听变化并保存到 localStorage
+  // 监听变化并保存到 localStorage（同步落盘，可借数量回写不丢失）
   watch(books, (newBooks) => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(newBooks))
-  }, { deep: true })
+  }, { deep: true, flush: 'sync' })
 
   const totalBooks = computed(() => books.value.length)
   const totalAvailable = computed(() =>

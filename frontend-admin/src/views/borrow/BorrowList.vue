@@ -359,7 +359,8 @@ const hasFilters = computed(() => {
 })
 
 const filteredRecords = computed(() => {
-  let result = borrowStore.records
+  // 使用派生最终状态作为统一数据源，列表回显与统计、馆藏数量保持一致
+  let result = borrowStore.recordsWithStatus
 
   if (searchKeyword.value) {
     const keyword = searchKeyword.value.toLowerCase()
@@ -511,31 +512,29 @@ function showBorrowModal() {
 }
 
 async function handleBorrowSubmit() {
+  if (submitLoading.value) return
   try {
     await borrowFormRef.value.validate()
     submitLoading.value = true
 
-    const reader = readerStore.getReaderById(borrowForm.readerId)
-    const book = bookStore.getBookById(borrowForm.bookId)
-
-    if (!reader || !book) {
-      message.error('读者或图书信息不存在')
-      return
-    }
-
     await new Promise(resolve => setTimeout(resolve, 500))
 
-    borrowStore.addRecord({
-      readerId: reader.id,
-      readerName: reader.name,
-      cardNo: reader.cardNo,
-      bookId: book.id,
-      bookTitle: book.title,
-      isbn: book.isbn
+    // 借阅记录、馆藏可借数量、读者已借数由 store 原子提交，避免部分失败
+    const result = borrowStore.borrowBook({
+      readerId: borrowForm.readerId,
+      bookId: borrowForm.bookId
     })
 
-    bookStore.updateBook(book.id, { available: book.available - 1 })
-    readerStore.updateReader(reader.id, { borrowCount: reader.borrowCount + 1 })
+    if (!result.success) {
+      if (result.reason === 'unavailable') {
+        message.error('该图书库存不足，无法借阅')
+      } else if (result.reason === 'pending') {
+        message.warning('操作进行中，请勿重复提交')
+      } else {
+        message.error('读者或图书信息不存在')
+      }
+      return
+    }
 
     message.success('借阅成功')
     borrowModalVisible.value = false
@@ -547,27 +546,30 @@ async function handleBorrowSubmit() {
 }
 
 function handleReturn(record) {
-  borrowStore.returnBook(record.id)
-
-  const book = bookStore.getBookById(record.bookId)
-  const reader = readerStore.getReaderById(record.readerId)
-
-  if (book) {
-    bookStore.updateBook(book.id, { available: book.available + 1 })
+  const result = borrowStore.returnBook(record.id)
+  if (result.success) {
+    message.success('归还成功')
+  } else if (result.reason === 'already-returned') {
+    message.info('该记录已归还，请勿重复操作')
+  } else if (result.reason === 'pending') {
+    message.warning('操作进行中，请稍候')
+  } else {
+    message.error('归还失败，请重试')
   }
-  if (reader) {
-    readerStore.updateReader(reader.id, { borrowCount: Math.max(0, reader.borrowCount - 1) })
-  }
-
-  message.success('归还成功')
 }
 
 function handleRenew(record) {
-  const success = borrowStore.renewBook(record.id)
-  if (success) {
+  const result = borrowStore.renewBook(record.id)
+  if (result.success) {
     message.success('续借成功，借阅期限延长15天')
-  } else {
+  } else if (result.reason === 'max-renewed') {
     message.error('续借失败，已达到最大续借次数')
+  } else if (result.reason === 'already-returned') {
+    message.info('该记录已归还，无法续借')
+  } else if (result.reason === 'pending') {
+    message.warning('操作进行中，请稍候')
+  } else {
+    message.error('续借失败，请重试')
   }
 }
 </script>
